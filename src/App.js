@@ -1,24 +1,63 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
+
+import Loader from "./components/utils/loader.component";
+import Home from "./components/home/home.component";
+import Login from "./components/login/login.component";
+import appwrite from "./service/appwrite";
+import { useContext, useEffect } from "react";
+import { UserContext } from "./context/user.provider";
 
 function App() {
+  const { user, setCurrentUser } = useContext(UserContext);
+  const { getAccount } = appwrite;
+
+  const setUser = async () => {
+    let user;
+    try {
+      user = await getAccount();
+    } catch (e) {
+      console.log(e);
+      setCurrentUser(null);
+    }
+    if (user) setCurrentUser(user);
+  };
+
+  useEffect(() => {
+    setUser();
+  }, []);
+
+  const isLoading = false;
+  const isAuthenticated = !!user;
+  const PublicRoute = ({ exact, path, children }) =>
+    isLoading ? (
+      <Loader />
+    ) : isAuthenticated ? (
+      <Redirect to="/" />
+    ) : (
+      <Route exact={exact ? true : false} path={path} children={children} />
+    );
+
+  const PrivateRoute = ({ exact, path, children }) =>
+    isLoading ? (
+      <Loader />
+    ) : !user ? (
+      <Redirect to="/login" />
+    ) : (
+      <Route exact={exact ? true : false} path={path} children={children} />
+    );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Switch>
+        <PrivateRoute exact path="/" children={<Home />} />
+        <PublicRoute path="/login" children={<Login />} />
+      </Switch>
+    </Router>
   );
 }
 
