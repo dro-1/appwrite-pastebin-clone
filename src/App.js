@@ -30,6 +30,7 @@ function App() {
 
   useEffect(() => {
     setUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isLoading = false;

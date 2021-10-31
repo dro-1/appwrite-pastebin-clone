@@ -9,7 +9,6 @@ const Home = () => {
   const { user } = useContext(UserContext);
   const { logOut, savePaste } = appwrite;
   const [paste, setPaste] = useState("");
-  const [isPrivate, setIsPrivate] = useState(false);
   const [pasteLink, setPasteLink] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -19,7 +18,7 @@ const Home = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    let result = await savePaste(user.$id, paste, isPrivate);
+    let result = await savePaste(user.$id, paste);
     let url = `${window.location.href}${result.shortCode}${
       result.secureCode ? `?secure=${result.secureCode}` : ""
     }`;
