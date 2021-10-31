@@ -8,6 +8,7 @@ import {
 import Loader from "./components/utils/loader.component";
 import Home from "./components/home/home.component";
 import Login from "./components/login/login.component";
+import ViewPaste from "./components/view-paste/view-paste.component";
 import appwrite from "./service/appwrite";
 import { useContext, useEffect } from "react";
 import { UserContext } from "./context/user.provider";
@@ -55,7 +56,8 @@ function App() {
     <Router>
       <Switch>
         <PrivateRoute exact path="/" children={<Home />} />
-        <PublicRoute path="/login" children={<Login />} />
+        <PublicRoute exact path="/login" children={<Login />} />
+        <Route exact path="/:pasteInfo" children={<ViewPaste />} />
       </Switch>
     </Router>
   );

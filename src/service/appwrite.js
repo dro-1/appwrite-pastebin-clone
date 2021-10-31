@@ -1,4 +1,5 @@
 import { Appwrite } from "appwrite";
+import { v4 as uuidv4 } from "uuid";
 
 let api = {
   sdk: null,
@@ -20,8 +21,8 @@ let api = {
         .provider()
         .account.createOAuth2Session(
           "google",
-          "http://localhost:3001",
-          "http://localhost:3001/login",
+          "http://localhost:3000",
+          "http://localhost:3000/login",
           ["https://www.googleapis.com/auth/userinfo.profile"]
         );
       console.log(resp);
@@ -29,11 +30,6 @@ let api = {
       console.log(error);
     }
   },
-
-  //   createAccount: (email, password, name) => {
-  //     return api.provider().account.create(email, password, name);
-  //   },
-
   getAccount: () => {
     return api.provider().account.get();
   },
@@ -43,38 +39,44 @@ let api = {
       .account.deleteSession("current")
       .then((response) => {
         localStorage.removeItem("auth_state");
-        window.location = "http://localhost:3001/login";
+        window.location = "http://localhost:3000/login";
         console.log(response);
       })
       .catch(console.log);
   },
-  //   createSession: (email, password) => {
-  //     return api.provider().account.createSession(email, password);
-  //   },
-
-  //   deleteCurrentSession: () => {
-  //     return api.provider().account.deleteSession("current");
-  //   },
-
-  //   createDocument: (collectionId, data, read, write) => {
-  //     return api
-  //       .provider()
-  //       .database.createDocument(collectionId, data, read, write);
-  //   },
-
-  //   listDocuments: (collectionId) => {
-  //     return api.provider().database.listDocuments(collectionId);
-  //   },
-
-  //   updateDocument: (collectionId, documentId, data, read, write) => {
-  //     return api
-  //       .provider()
-  //       .database.updateDocument(collectionId, documentId, data, read, write);
-  //   },
-
-  //   deleteDocument: (collectionId, documentId) => {
-  //     return api.provider().database.deleteDocument(collectionId, documentId);
-  //   },
+  savePaste: async (userId, paste) => {
+    let shortCode = "";
+    shortCode = userId.slice(4, 7) + uuidv4().slice(0, 3);
+    console.log(process.env.REACT_APP_COLLECTION_ID);
+    try {
+      let response = await api.provider().database.createDocument(
+        process.env.REACT_APP_COLLECTION_ID,
+        {
+          userId,
+          paste,
+          shortCode,
+        },
+        ["*"],
+        ["*"]
+      );
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  getPaste: async (shortCode) => {
+    try {
+      let response = await api
+        .provider()
+        .database.listDocuments(process.env.REACT_APP_COLLECTION_ID, [
+          `shortCode=${shortCode}`,
+        ]);
+      console.log(response);
+      return response.sum ? response.documents[0] : null;
+    } catch (e) {
+      console.log(e);
+    }
+  },
 };
 
 export default api;

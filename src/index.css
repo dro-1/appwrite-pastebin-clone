@@ -26,3 +26,8 @@ input,
 textarea {
   font-family: Poppins;
 }
+
+button,
+a {
+  cursor: pointer;
+}
